@@ -78,8 +78,8 @@ int main(int argc, char** argv) {
 	while (true)
 	{
 		Buy();
-		sleep(1);
+		sleep(0.1);
 		Sell();
-		sleep(1);
+		sleep(0.1);
 	}
 }

@@ -11,6 +11,7 @@
 #include <limits>
 #include <cmath>
 #include <iostream>
+#include <unordered_set>
 
 #include "helper.h"
 
@@ -130,7 +131,7 @@ bool GetMyCash (double& cash)
 	return true;
 }
 
-bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
+bool DoBuy (unordered_map<string, CompanyAttributes>& companies, unordered_set<string>& bought)
 {
 	double val = numeric_limits<double>::min();
 	string company;
@@ -139,6 +140,8 @@ bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
 	// find company info
 	for (auto i : companies)
 	{
+		if (bought.find(i.first) != bought.end())
+			continue;
 		double div = i.second.div_ratio;
 		double net_worth = i.second.net_worth;
 		double min_ask = i.second.min_ask;
@@ -161,11 +164,11 @@ bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
 	int n_shares;
 	if (cash > price * shares)
 	{
-		n_shares = shares;
+		n_shares = min(shares, (int)floor(300/price));
 	}
 	else
 	{
-		n_shares = floor(cash / price);
+		n_shares = min(floor(cash / price), floor(300/price));
 	}
 	if (n_shares > 0)
 	{
@@ -176,6 +179,7 @@ bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
 			cout << "cash: " << cash << endl;
 			cout << cmd << endl;
 			cout << "===============================" << endl;
+			bought.insert(company);
 			return true;
 		}
 		return false;
@@ -187,7 +191,14 @@ bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
 bool Buy ()
 {
 	unordered_map<string, CompanyAttributes> hash_map = FetchCompanies ();
-	bool success = DoBuy(hash_map);
+	unordered_set<string> bought;
+	double cash;
+	bool success = false;
+	if (GetMyCash(cash))
+	{
+		success = DoBuy(hash_map, bought);
+		while (success && DoBuy(hash_map, bought));
+	}
 	return success;
 }
 
