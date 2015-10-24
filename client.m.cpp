@@ -17,19 +17,12 @@ using namespace std;
 using namespace galik;
 using namespace galik::net;
 
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
-	size_t start = 0, end = 0;
-	while ((end = s.find(delim, start)) != string::npos) {
-		elems.push_back(s.substr(start, end - start));
-		start = end + 1;
-	}
-	elems.push_back(s.substr(start));
-	return elems;
-}
+
 
 /*
 *
 */
+/*
 int main(int argc, char** argv) {
 	if (argc < 1) {
 		cout << "args: <command>" << endl;
@@ -62,3 +55,4 @@ int main(int argc, char** argv) {
 	}
 	return 0;
 }
+*/
