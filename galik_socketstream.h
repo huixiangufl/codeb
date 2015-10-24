@@ -165,6 +165,7 @@ namespace galik {
                 sockaddr_in sin;
                 hostent *he = gethostbyname(host.c_str());
 
+                if (!he) return false;
                 std::copy(reinterpret_cast<char*> (he->h_addr)
                         , reinterpret_cast<char*> (he->h_addr) + he->h_length
                         , reinterpret_cast<char*> (&sin.sin_addr.s_addr));
