@@ -70,16 +70,23 @@ void test_buy()
 }
 
 int main(int argc, char** argv) {
+  if(argc != 3) {
+    printf("./client sleeptime1 sleeptime2.\n");
+  }
 
-	//test_hashMap();
-	//test_FetchCompanyAttributes();
-	//test_FetchCompanies();
-	//test_buy();
-	while (true)
-	{
-		Buy();
-		sleep(1);
-		Sell();
-		sleep(1);
-	}
+  //test_hashMap();
+  //test_FetchCompanyAttributes();
+  //test_FetchCompanies();
+  //test_buy();
+  while (true)
+  {
+    Buy();
+    //		sleep(0.1);
+    //        sleep(10);
+    sleep(atoi(argv[0]));
+    Sell();
+    //        sleep(10);
+    sleep(atoi(argv[1]));
+    //		sleep(0.1);
+  }
 }

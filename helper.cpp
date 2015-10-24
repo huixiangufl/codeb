@@ -35,7 +35,8 @@ string SendCommand (const string& cmd)
 	string password("mxa12345");
 
 	socketstream ss;
-	ss.open("codebb.cloudapp.net", 17429);
+	if (!ss.open("codebb.cloudapp.net", 17429))
+		return "";
 
 	ss << name << " " << password << "\n" << cmd << "\nCLOSE_CONNECTION" << endl;
 	stringstream strs;
@@ -105,6 +106,7 @@ FetchCompanies ()
 		return hash_map;
 	for (int i = 1; i < elems.size(); i += 4)
 	{
+		if (!isalnum(elems[i][0])) continue;
 		CompanyAttributes attributes;
 		if (FetchCompanyAttributes (attributes, elems[i]))
 		{
@@ -168,12 +170,16 @@ bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
 	if (n_shares > 0)
 	{
 		string cmd = "BID " + company + " " + to_string(price) + " " + to_string(n_shares);
-		SendCommand(cmd);
-		cout << "Buy:" << endl;
-		cout << "cash: " << cash << endl;
-		cout << cmd << endl;
-		cout << "===============================" << endl;
-		return true;
+		if (!SendCommand(cmd).empty())
+		{
+			cout << "Buy:" << endl;
+			cout << "cash: " << cash << endl;
+			cout << cmd << endl;
+			cout << "===============================" << endl;
+			return true;
+		}
+		return false;
+
 	}
 	return false;
 }
@@ -223,7 +229,7 @@ double GetMaxAsk (const string& company)
 
 bool DoSell (unordered_map<string, CompanyAttributes>& companies)
 {
-	double rate = 0.75;
+	double rate = 0.5;
 	double price_offset = 0.001;
 	string str = SendCommand("MY_SECURITIES ");
 	vector<string> elems;
@@ -239,10 +245,12 @@ bool DoSell (unordered_map<string, CompanyAttributes>& companies)
 			double price = GetMaxAsk(elems[i]) - price_offset;
 			int shares = companies[elems[i]].my_shares;
 			string cmd = "ASK " + elems[i] + " " + to_string(price) + " " + to_string(shares);
-			SendCommand(cmd);
-			cout << "Sell:" << endl;
-			cout << cmd << endl;
-			cout << "===============================" << endl;
+			if (!SendCommand(cmd).empty())
+			{
+				cout << "Sell:" << endl;
+				cout << cmd << endl;
+				cout << "===============================" << endl;
+			}
 		}
 	}
 	return true;
