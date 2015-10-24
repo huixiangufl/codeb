@@ -183,7 +183,7 @@ bool Buy ()
 	return success;
 }
 
-bool UpdateMyData (unordered_map<string, CompanyAttributes>& companies)
+bool UpdateMyData (unordered_map<string, CompanyAttributes>& my_companies)
 {
 	string str = SendCommand("MY_SECURITIES ");
 	vector<string> elems;
@@ -193,8 +193,8 @@ bool UpdateMyData (unordered_map<string, CompanyAttributes>& companies)
 	for (int i = 1; i < elems.size(); i += 3)
 	{
 		if (!isalnum(elems[i][0])) continue;
-		companies[elems[i]].my_shares = stoi(elems[i+1]);
-		companies[elems[i]].my_div_ratio = stod(elems[i+2]);
+		my_companies[elems[i]].my_shares = stoi(elems[i+1]);
+		my_companies[elems[i]].my_div_ratio = stod(elems[i+2]);
 	}
 	return true;
 }
@@ -221,7 +221,7 @@ double GetMaxAsk (const string& company)
 
 bool DoSell (unordered_map<string, CompanyAttributes>& my_companies)
 {
-	double rate = 0.4;
+	double rate = 0.75;
 	double price_offset = 0.001;
 	string str = SendCommand("MY_SECURITIES ");
 	vector<string> elems;
@@ -231,7 +231,7 @@ bool DoSell (unordered_map<string, CompanyAttributes>& my_companies)
 	for (int i = 1; i < elems.size(); i += 3)
 	{
 		if (!isalnum(elems[i][0])) continue;
-		if (elems[i+1] > 0 && elems[i+2] < my_companies[elems[i]].div_ratio * rate)
+		if (stoi(elems[i+1]) > 0 && stod(elems[i+2]) < my_companies[elems[i]].div_ratio * rate)
 		{
 			string ticker = elems[i];
 			double price = GetMaxAsk(elems[i]) - price_offset;
@@ -239,10 +239,10 @@ bool DoSell (unordered_map<string, CompanyAttributes>& my_companies)
 			string cmd = "ASK " + elems[i] + " " + to_string(price) + " " + to_string(shares);
 			//SendCommand(cmd);
 			cout << cmd << endl;
-
 		}
 	}
-
+	return true;
 }
 
+bool Sell ()
 
