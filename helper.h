@@ -23,8 +23,8 @@ struct CompanyAttributes
 	double div_ratio;
 	double net_worth;
 	//my data
-	double my_div_ratio;
-	int my_shares;
+	double my_div_ratio = 0;
+	int my_shares = 0;
 
 	double total_share;
 };
@@ -41,5 +41,6 @@ FetchCompanies ();
 bool FetchCompanyAttributes (CompanyAttributes& attributes, const string& company);
 
 bool Buy ();
+bool Sell ();
 
 #endif /* HELPER_H_ */

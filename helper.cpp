@@ -168,9 +168,11 @@ bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
 	if (n_shares > 0)
 	{
 		string cmd = "BID " + company + " " + to_string(price) + " " + to_string(n_shares);
-		//SendCommand(cmd);
+		SendCommand(cmd);
+		cout << "Buy:" << endl;
 		cout << "cash: " << cash << endl;
 		cout << cmd << endl;
+		cout << "===============================" << endl;
 		return true;
 	}
 	return false;
@@ -219,7 +221,7 @@ double GetMaxAsk (const string& company)
 	return max_ask;
 }
 
-bool DoSell (unordered_map<string, CompanyAttributes>& my_companies)
+bool DoSell (unordered_map<string, CompanyAttributes>& companies)
 {
 	double rate = 0.75;
 	double price_offset = 0.001;
@@ -231,18 +233,26 @@ bool DoSell (unordered_map<string, CompanyAttributes>& my_companies)
 	for (int i = 1; i < elems.size(); i += 3)
 	{
 		if (!isalnum(elems[i][0])) continue;
-		if (stoi(elems[i+1]) > 0 && stod(elems[i+2]) < my_companies[elems[i]].div_ratio * rate)
+		if (stoi(elems[i+1]) > 0 && stod(elems[i+2]) < stoi(elems[i+1]) * companies[elems[i]].div_ratio * rate)
 		{
 			string ticker = elems[i];
 			double price = GetMaxAsk(elems[i]) - price_offset;
-			int shares = my_companies[elems[i]].my_shares;
+			int shares = companies[elems[i]].my_shares;
 			string cmd = "ASK " + elems[i] + " " + to_string(price) + " " + to_string(shares);
-			//SendCommand(cmd);
+			SendCommand(cmd);
+			cout << "Sell:" << endl;
 			cout << cmd << endl;
+			cout << "===============================" << endl;
 		}
 	}
 	return true;
 }
 
 bool Sell ()
+{
+	unordered_map<string, CompanyAttributes> hash_map = FetchCompanies ();
+	UpdateMyData(hash_map);
+	DoSell (hash_map);
+	return true;
+}
 

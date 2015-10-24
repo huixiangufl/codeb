@@ -74,5 +74,12 @@ int main(int argc, char** argv) {
 	//test_hashMap();
 	//test_FetchCompanyAttributes();
 	//test_FetchCompanies();
-	test_buy();
+	//test_buy();
+	while (true)
+	{
+		Buy();
+		sleep(1);
+		Sell();
+		sleep(1);
+	}
 }
