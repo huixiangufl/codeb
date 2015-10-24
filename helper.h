@@ -13,6 +13,7 @@
 
 using namespace std;
 
+
 struct CompanyAttributes
 {
 	double max_bid;
@@ -21,7 +22,9 @@ struct CompanyAttributes
 	int min_ask_share;
 	double div_ratio;
 	double net_worth;
+	//my data
 	double my_div_ratio;
+	int my_shares;
 
 	double total_share;
 };

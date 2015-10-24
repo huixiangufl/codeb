@@ -82,8 +82,8 @@ bool FetchCompanyAttributes (CompanyAttributes& attributes, const string& compan
 				min_ask_share = cur_share;
 			}
 			//min_ask = max(min_ask, stod(elems[i+2]));
+			total_share += cur_share;
 		}
-		total_share += cur_share;
 	}
 	attributes.min_ask = min_ask;
 	attributes.max_bid = max_bid;
@@ -134,6 +134,7 @@ bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
 	string company;
 	double price; double offset = 0.1;
 	int shares;
+	// find company info
 	for (auto i : companies)
 	{
 		double div = i.second.div_ratio;
@@ -141,7 +142,7 @@ bool DoBuy (unordered_map<string, CompanyAttributes>& companies)
 		double min_ask = i.second.min_ask;
 		double max_bid = i.second.max_bid;
 		double total_share = i.second.total_share;
-		double cur_val = div * net_worth / total_share * (1 / (min_ask - max_bid));
+		double cur_val = div * net_worth / total_share * (1 / min_ask) * (1 / (min_ask - max_bid));
 		//val = max (val, cur_val);
 		if (cur_val > val)
 		{
@@ -182,8 +183,65 @@ bool Buy ()
 	return success;
 }
 
-bool DoSell (unordered_map<string, CompanyAttributes>& companies)
+bool UpdateMyData (unordered_map<string, CompanyAttributes>& companies)
 {
+	string str = SendCommand("MY_SECURITIES ");
+	vector<string> elems;
+	split (str, ' ', elems);
+	if (elems.empty() || elems[0] != "MY_SECURITIES_OUT")
+		return false;
+	for (int i = 1; i < elems.size(); i += 3)
+	{
+		if (!isalnum(elems[i][0])) continue;
+		companies[elems[i]].my_shares = stoi(elems[i+1]);
+		companies[elems[i]].my_div_ratio = stod(elems[i+2]);
+	}
+	return true;
+}
+
+double GetMaxAsk (const string& company)
+{
+	string str = SendCommand(string("ORDERS ") + company);
+	vector<string> elems;
+	split (str, ' ', elems);
+	if (elems.empty() || elems[0] != "SECURITY_ORDERS_OUT")
+		return false;
+	double max_ask = numeric_limits<double>::min();
+	for (int i = 1; i < elems.size(); i += 4)
+	{
+		if (elems[i] != "BID" && elems[i] != "ASK")
+			continue;
+		if (elems[i] == "ASK")
+		{
+			max_ask = max(max_ask, stod(elems[i+2]));
+		}
+	}
+	return max_ask;
+}
+
+bool DoSell (unordered_map<string, CompanyAttributes>& my_companies)
+{
+	double rate = 0.4;
+	double price_offset = 0.001;
+	string str = SendCommand("MY_SECURITIES ");
+	vector<string> elems;
+	split (str, ' ', elems);
+	if (elems.empty() || elems[0] != "MY_SECURITIES_OUT")
+		return false;
+	for (int i = 1; i < elems.size(); i += 3)
+	{
+		if (!isalnum(elems[i][0])) continue;
+		if (elems[i+1] > 0 && elems[i+2] < my_companies[elems[i]].div_ratio * rate)
+		{
+			string ticker = elems[i];
+			double price = GetMaxAsk(elems[i]) - price_offset;
+			int shares = my_companies[elems[i]].my_shares;
+			string cmd = "ASK " + elems[i] + " " + to_string(price) + " " + to_string(shares);
+			//SendCommand(cmd);
+			cout << cmd << endl;
+
+		}
+	}
 
 }
 
